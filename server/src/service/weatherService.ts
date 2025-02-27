@@ -1,11 +1,3 @@
-//Using the 5-day weather forecast API, you'll notice 
-// that you'll need to pass in coordinates instead of just a city name. 
-// Using the OpenWeatherMap APIs, how could we retrieve geographical 
-// coordinates given a city name?
-// How could we make the OpenWeather API calls server-side, 
-// parse the data, and then send the parsed data client-side?
-//example of a proper query given our BASE_URL
-//api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid=18171d41bb4163345f5885844befc0e2
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -18,6 +10,7 @@ class Weather {
   temperature: number;
   description: string;
 
+
   constructor(temperature: number, description: string) {
     this.temperature = temperature;
     this.description = description;
@@ -25,8 +18,8 @@ class Weather {
 }
 
 class WeatherService {
-  private baseURL: string;
-  private apiKey: string;
+  baseURL: string;
+  apiKey: string;
 
   constructor() {
     this.baseURL = process.env.API_BASE_URL!;
@@ -35,7 +28,9 @@ class WeatherService {
 
   private async fetchLocationData(city: string): Promise<Coordinates> {
     const query = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${this.apiKey}`;
-    console.log('Geocode Query:', query); // Add logging here
+    console.log('Geocode Query:', query);
+    console.log(process.env.API_BASE_URL);
+    console.log(process.env.API_KEY); // Add logging here
     const response = await fetch(query);
     const data = await response.json();
     if (data.length === 0) {
