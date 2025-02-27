@@ -1,26 +1,35 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import weatherRoutes from './routes/api/weatherRoutes.js';
+import routes from './routes/index.js';
+
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
 
-// Import the routes
-import routes from './routes/index.js';
-
-
-
 const PORT = process.env.PORT || 3001;
 
-// Serve static files of entire client dist folder
-app.use(express.static('client/dist'));
-
 // Implement middleware for parsing JSON and urlencoded form data
-app.use('/api/weather', weatherRoutes);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Implement middleware to connect the routes
+app.use('/api/weather', weatherRoutes);
 app.use('/api', routes);
+
+// Serve static files from the client directory
+app.use(express.static(path.resolve(__dirname, '../../client')));
+
+// Fallback to index.html for any other requests (for SPA)
+app.get('*', (_req, res) => {
+  res.sendFile(path.resolve(__dirname, '../../client/index.html'));
+});
 
 // Start the server on the port
 app.listen(PORT, () => console.log(`Listening on PORT: ${PORT}`));

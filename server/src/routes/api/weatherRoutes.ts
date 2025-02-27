@@ -17,6 +17,7 @@ router.post('/', async (req: Request, res: Response) => {
     await HistoryService.addCity(city); // Save city to search history
     return res.json(weather);
   } catch (err: any) {
+    console.error('Error fetching weather data:', err); // Add logging here
     return res.status(500).json({ message: err.message });
   }
 });
