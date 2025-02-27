@@ -34,13 +34,13 @@ API Calls
 
 */
 
-const fetchWeather = async (city: string) => {
+const fetchWeather = async (cityName: string) => {
   const response = await fetch('/api/weather/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ city }),
+    body: JSON.stringify({ cityName }),
   });
 
   const weatherData = await response.json();
@@ -77,21 +77,26 @@ Render Functions
 */
 
 const renderCurrentWeather = (currentWeather: any): void => {
-  const { city, date, icon, iconDescription, tempF, windSpeed, humidity } =
-    currentWeather;
+  if (currentWeather) {
+    // Now you can destructure because currentWeather is not undefined
+    const { city, date, icon, iconDescription, tempF, windSpeed, humidity } =
+      currentWeather;
 
-  // convert the following to typescript
-  heading.textContent = `${city} (${date})`;
-  weatherIcon.setAttribute(
-    'src',
-    `https://openweathermap.org/img/w/${icon}.png`
-  );
-  weatherIcon.setAttribute('alt', iconDescription);
-  weatherIcon.setAttribute('class', 'weather-img');
-  heading.append(weatherIcon);
-  tempEl.textContent = `Temp: ${tempF}°F`;
-  windEl.textContent = `Wind: ${windSpeed} MPH`;
-  humidityEl.textContent = `Humidity: ${humidity} %`;
+    heading.textContent = `${city} (${date})`;
+    weatherIcon.setAttribute(
+      'src',
+      `https://openweathermap.org/img/w/${icon}.png`
+    );
+    weatherIcon.setAttribute('alt', iconDescription);
+    weatherIcon.setAttribute('class', 'weather-img');
+    heading.append(weatherIcon);
+    tempEl.textContent = `Temp: ${tempF}°F`;
+    windEl.textContent = `Wind: ${windSpeed} MPH`;
+    humidityEl.textContent = `Humidity: ${humidity} %`;
+  } else {
+    // Handle the case where currentWeather is undefined (e.g., display an error message)
+    console.error('currentWeather is undefined');
+  }
 
   if (todayContainer) {
     todayContainer.innerHTML = '';
