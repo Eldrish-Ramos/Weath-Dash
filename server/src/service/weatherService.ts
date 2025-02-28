@@ -7,7 +7,7 @@ interface Coordinates {
 }
 
 class Weather {
-  city: string;
+  cityName: string;
   date: string;
   icon: string;
   iconDescription: string;
@@ -16,7 +16,7 @@ class Weather {
   humidity: number;
 
   constructor(
-    city: string,
+    cityName: string,
     date: string,
     icon: string,
     iconDescription: string,
@@ -24,7 +24,7 @@ class Weather {
     windSpeed: number,
     humidity: number
   ) {
-    this.city = city;
+    this.cityName = cityName;
     this.date = date;
     this.icon = icon;
     this.iconDescription = iconDescription;
@@ -70,25 +70,43 @@ class WeatherService {
     const query = `${this.baseURL}/forecast?lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}`;
     console.log('Weather Query:', query); // Add logging here
     const response = await fetch(query);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch weather data: ${response.statusText}`);
+    }
     const data = await response.json();
+    console.log('Weather Data:', data); // Add logging here
     return data;
   }
 
   private parseCurrentWeather(response: any): Weather {
-    const city = response.city.name;
+    const cityName = response.city.name;
     const date = new Date(response.list[0].dt * 1000).toLocaleDateString();
     const icon = response.list[0].weather[0].icon;
     const iconDescription = response.list[0].weather[0].description;
     const tempF = Math.floor((response.list[0].main.temp - 273.15) * 9/5 + 32);
     const windSpeed = response.list[0].wind.speed;
     const humidity = response.list[0].main.humidity;
-    return new Weather(city, date, icon, iconDescription, tempF, windSpeed, humidity);
+    return new Weather(cityName, date, icon, iconDescription, tempF, windSpeed, humidity);
   }
 
-  async getWeatherForCity(city: string): Promise<Weather> {
+  private parseForecast(response: any): Weather[] {
+    return response.list.slice(1).map((forecast: any) => {
+      const date = new Date(forecast.dt * 1000).toLocaleDateString();
+      const icon = forecast.weather[0].icon;
+      const iconDescription = forecast.weather[0].description;
+      const tempF = Math.floor((forecast.main.temp - 273.15) * 9/5 + 32);
+      const windSpeed = forecast.wind.speed;
+      const humidity = forecast.main.humidity;
+      return new Weather(response.city.name, date, icon, iconDescription, tempF, windSpeed, humidity);
+    });
+  }
+
+  async getWeatherForCity(city: string): Promise<Weather[]> {
     const coordinates = await this.fetchLocationData(city);
     const weatherData = await this.fetchWeatherData(coordinates);
-    return this.parseCurrentWeather(weatherData);
+    const currentWeather = this.parseCurrentWeather(weatherData);
+    const forecast = this.parseForecast(weatherData);
+    return [currentWeather, ...forecast];
   }
 }
 

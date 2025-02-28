@@ -6,7 +6,7 @@ import WeatherService from '../../service/weatherService.js';
 
 // POST Request with city name to retrieve weather data
 router.post('/', async (req: Request, res: Response) => {
-  console.log('Request body:', req.body); // Add logging here
+  console.log('POST /api/weather - Request body:', req.body); // Add logging here
   const city = req.body.cityName; // Ensure 'cityName' is used here
   console.log('Received city:', city); // Add logging here
   if (!city) {
@@ -14,6 +14,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
   try {
     const weather = await WeatherService.getWeatherForCity(city);
+    console.log('Fetched weather data:', weather); // Add logging here
     await HistoryService.addCity(city); // Save city to search history
     return res.json(weather);
   } catch (err: any) {
@@ -24,6 +25,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // GET search history
 router.get('/history', async (_req: Request, res: Response) => {
+  console.log('GET /api/weather/history'); // Add logging here
   try {
     const history = await HistoryService.getCities();
     res.status(200).json(history);
@@ -34,6 +36,7 @@ router.get('/history', async (_req: Request, res: Response) => {
 
 // DELETE city from search history
 router.delete('/history/:id', async (req: Request, res: Response) => {
+  console.log('DELETE /api/weather/history/:id - ID:', req.params.id); // Add logging here
   const id = req.params.id;
   try {
     await HistoryService.removeCity(id);
