@@ -52,7 +52,7 @@ class WeatherService {
   }
 
   private async fetchLocationData(city: string): Promise<Coordinates> {
-    const query = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${this.apiKey}`;
+    const query = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${this.apiKey}`;
     console.log('Geocode Query:', query); // Add logging here
     const response = await fetch(query);
     const data = await response.json();
@@ -80,7 +80,6 @@ class WeatherService {
 
   private parseCurrentWeather(response: any): Weather {
     const cityName = response.city.name;
-    console.log('City Name in parseCurrentWeather:', cityName); // Add logging here
     const date = new Date(response.list[0].dt * 1000).toLocaleDateString();
     const icon = response.list[0].weather[0].icon;
     const iconDescription = response.list[0].weather[0].description;
@@ -91,24 +90,25 @@ class WeatherService {
   }
 
   private parseForecast(response: any): Weather[] {
-    // Filter the forecast data to select one forecast per day at 12:00 PM
-    const dailyForecasts = response.list.filter((forecast: any) => {
-      const date = new Date(forecast.dt * 1000);
-      return date.getHours() === 12;
+    const seenDates = new Set<string>();
+    const dailyForecasts: Weather[] = [];
+
+    response.list.forEach((forecast: any) => {
+      const date = new Date(forecast.dt * 1000).toLocaleDateString();
+      if (!seenDates.has(date)) {
+        seenDates.add(date);
+        const icon = forecast.weather[0].icon;
+        const iconDescription = forecast.weather[0].description;
+        const tempF = Math.floor((forecast.main.temp - 273.15) * 9/5 + 32);
+        const windSpeed = forecast.wind.speed;
+        const humidity = forecast.main.humidity;
+        dailyForecasts.push(new Weather(response.city.name, date, icon, iconDescription, tempF, windSpeed, humidity));
+      }
     });
 
     console.log('Daily Forecasts:', dailyForecasts); // Add logging here
 
-    return dailyForecasts.map((forecast: any) => {
-      const date = new Date(forecast.dt * 1000).toLocaleDateString();
-      const icon = forecast.weather[0].icon;
-      const iconDescription = forecast.weather[0].description;
-      const tempF = Math.floor((forecast.main.temp - 273.15) * 9/5 + 32);
-      const windSpeed = forecast.wind.speed;
-      const humidity = forecast.main.humidity;
-      console.log('City Name in parseForecast:', response.city.name); // Add logging here
-      return new Weather(response.city.name, date, icon, iconDescription, tempF, windSpeed, humidity);
-    });
+    return dailyForecasts.slice(0, 5);
   }
 
   async getWeatherForCity(city: string): Promise<Weather[]> {
