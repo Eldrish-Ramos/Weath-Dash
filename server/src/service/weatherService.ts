@@ -80,6 +80,7 @@ class WeatherService {
 
   private parseCurrentWeather(response: any): Weather {
     const cityName = response.city.name;
+    console.log('City Name in parseCurrentWeather:', cityName); // Add logging here
     const date = new Date(response.list[0].dt * 1000).toLocaleDateString();
     const icon = response.list[0].weather[0].icon;
     const iconDescription = response.list[0].weather[0].description;
@@ -90,13 +91,22 @@ class WeatherService {
   }
 
   private parseForecast(response: any): Weather[] {
-    return response.list.slice(1).map((forecast: any) => {
+    // Filter the forecast data to select one forecast per day at 12:00 PM
+    const dailyForecasts = response.list.filter((forecast: any) => {
+      const date = new Date(forecast.dt * 1000);
+      return date.getHours() === 12;
+    });
+
+    console.log('Daily Forecasts:', dailyForecasts); // Add logging here
+
+    return dailyForecasts.map((forecast: any) => {
       const date = new Date(forecast.dt * 1000).toLocaleDateString();
       const icon = forecast.weather[0].icon;
       const iconDescription = forecast.weather[0].description;
       const tempF = Math.floor((forecast.main.temp - 273.15) * 9/5 + 32);
       const windSpeed = forecast.wind.speed;
       const humidity = forecast.main.humidity;
+      console.log('City Name in parseForecast:', response.city.name); // Add logging here
       return new Weather(response.city.name, date, icon, iconDescription, tempF, windSpeed, humidity);
     });
   }

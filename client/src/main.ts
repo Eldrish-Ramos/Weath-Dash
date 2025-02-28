@@ -80,10 +80,10 @@ Render Functions
 const renderCurrentWeather = (currentWeather: any): void => {
   if (currentWeather) {
     // Now you can destructure because currentWeather is not undefined
-    const { city, date, icon, iconDescription, tempF, windSpeed, humidity } =
+    const { cityName, date, icon, iconDescription, tempF, windSpeed, humidity } =
       currentWeather;
 
-    heading.textContent = `${city} (${date})`;
+    heading.textContent = `${cityName} (${date})`;
     weatherIcon.setAttribute(
       'src',
       `https://openweathermap.org/img/w/${icon}.png`
