@@ -24,7 +24,7 @@ app.use('/api/weather', weatherRoutes);
 app.use('/api', routes);
 
 // Serve static files from the client directory
-app.use(express.static(path.resolve(__dirname, '../../client')));
+app.use(express.static(path.resolve(__dirname, '../../client/dist')));
 
 // Fallback to index.html for any other requests (for SPA)
 app.get('*', (_req, res) => {
