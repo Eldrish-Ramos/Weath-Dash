@@ -3,8 +3,7 @@ import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: process.env.PORT || 3000,
-    host: '0.0.0.0',
+    port: 3000,
     open: true,
     proxy: {
       '/api': {
@@ -13,6 +12,5 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: ['node-openweather-dashboard.onrender.com'],
   },
 });
