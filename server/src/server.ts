@@ -28,7 +28,7 @@ app.use(express.static(path.resolve(__dirname, '../../client')));
 
 // Fallback to index.html for any other requests (for SPA)
 app.get('*', (_req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../client/index.html'));
+  res.sendFile(path.resolve(__dirname, '../../client/dist/index.html'));
 });
 
 // Start the server on the port
